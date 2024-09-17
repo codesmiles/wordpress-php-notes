@@ -308,3 +308,34 @@ function login_controller($request)
 
     return sendResponse(["error" => false, "message" => $GLOBALS['success_message'], "data" => $response]);
 }
+
+
+// JWT Authentication
+add_action('rest_api_init', function () {
+    register_rest_route('custom-auth/v1', '/login', [
+        'methods' => 'POST',
+        'callback' => 'custom_jwt_login',
+        'permission_callback' => '__return_true',
+    ]);
+});
+
+function custom_jwt_login(WP_REST_Request $request) {
+    $username = sanitize_text_field($request->get_param('username'));
+    $password = $request->get_param('password'); // Don't sanitize the password
+
+    // Authenticate the user using WordPress's wp_authenticate()
+    $user = wp_authenticate($username, $password);
+
+    if (is_wp_error($user)) {
+        return new WP_REST_Response(['error' => 'Invalid credentials'], 401);
+    }
+
+    // Use the plugin's internal method to generate the JWT token
+    $jwt_token = jwt_auth_generate_token($user->ID);
+
+    return new WP_REST_Response([
+        'token' => $jwt_token,
+        'user_email' => $user->user_email,
+        'user_display_name' => $user->display_name,
+    ], 200);
+}
