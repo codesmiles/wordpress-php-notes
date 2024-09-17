@@ -736,4 +736,3 @@ function edit_user_data_callback($request) {
     return new WP_REST_Response(array('message' => 'User data and metadata updated successfully'), 200);
 }
 
-
