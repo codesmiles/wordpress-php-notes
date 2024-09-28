@@ -136,23 +136,23 @@ function send_verification_email($user_id)
 }
 
 
-// send verification token email
-function resend_verification_token($email, $subject, $message)
-{
+// // send verification token email
+// function resend_verification_token($email, $subject, $message)
+// {
 
-    $user = get_user_by('email', $email);
-    $token = bin2hex(random_bytes(16));
-    update_user_meta($user->ID, 'verification_token', $token);
-    // $verification_link = add_query_arg(
-    //     [
-    //         'token' => $token,
-    //         'email' => $email,
-    //     ],
-    //     site_url('/verify-account/')
-    // );
+//     $user = get_user_by('email', $email);
+//     $token = bin2hex(random_bytes(16));
+//     update_user_meta($user->ID, 'verification_token', $token);
+//     // $verification_link = add_query_arg(
+//     //     [
+//     //         'token' => $token,
+//     //         'email' => $email,
+//     //     ],
+//     //     site_url('/verify-account/')
+//     // );
 
-    wp_mail($email, $subject, $message . " Your verification token is: " . $token);
-}
+//     wp_mail($email, $subject, $message . " Your verification token is: " . $token);
+// }
 
 
 /*
@@ -259,55 +259,55 @@ function reset_password_controller($request)
     return sendResponse(["error" => false, "message" => $GLOBALS['success_message']]);
 }
 
-function login_controller($request)
-{
-    $parameters = $request->get_params();
+// function login_controller($request)
+// {
+//     $parameters = $request->get_params();
 
-    $username = isset($parameters['username']) ? sanitize_text_field($parameters['username']) : '';
-    $password = isset($parameters['password']) ? $parameters['password'] : '';
+//     $username = isset($parameters['username']) ? sanitize_text_field($parameters['username']) : '';
+//     $password = isset($parameters['password']) ? $parameters['password'] : '';
 
-    if (empty($username) || empty($password)) {
-        return sendResponse(["error" => true, "message" => $GLOBALS['validation_message']]);
-    }
+//     if (empty($username) || empty($password)) {
+//         return sendResponse(["error" => true, "message" => $GLOBALS['validation_message']]);
+//     }
 
-    // Perform user authentication
-    $user = wp_authenticate($username, $password);
+//     // Perform user authentication
+//     $user = wp_authenticate($username, $password);
 
-    if (is_wp_error($user)) {
-        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
-    }
+//     if (is_wp_error($user)) {
+//         return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+//     }
 
-    // Get JWT token from the plugin's endpoint
-    $token_request = wp_remote_post(home_url('/wp-json/jwt-auth/v1/token'), array(
-        'body' => array(
-            'username' => $username,
-            'password' => $password,
-        ),
-    ));
+//     // Get JWT token from the plugin's endpoint
+//     $token_request = wp_remote_post(home_url('/wp-json/jwt-auth/v1/token'), array(
+//         'body' => array(
+//             'username' => $username,
+//             'password' => $password,
+//         ),
+//     ));
 
-    if (is_wp_error($token_request)) {
-        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
-    }
+//     if (is_wp_error($token_request)) {
+//         return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+//     }
 
-    $response_code = wp_remote_retrieve_response_code($token_request);
+//     $response_code = wp_remote_retrieve_response_code($token_request);
 
-    if ($response_code !== 200) {
-        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
-    }
+//     if ($response_code !== 200) {
+//         return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+//     }
 
-    $response_body = wp_remote_retrieve_body($token_request);
-    $token_data = json_decode($response_body);
+//     $response_body = wp_remote_retrieve_body($token_request);
+//     $token_data = json_decode($response_body);
 
-    if (!isset($token_data->token)) {
-        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
-    }
+//     if (!isset($token_data->token)) {
+//         return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+//     }
 
-    $response = [
-        'token' => $token_data->token,
-    ];
+//     $response = [
+//         'token' => $token_data->token,
+//     ];
 
-    return sendResponse(["error" => false, "message" => $GLOBALS['success_message'], "data" => $response]);
-}
+//     return sendResponse(["error" => false, "message" => $GLOBALS['success_message'], "data" => $response]);
+// }
 
 
 // JWT Authentication
@@ -319,7 +319,8 @@ add_action('rest_api_init', function () {
     ]);
 });
 
-function custom_jwt_login(WP_REST_Request $request) {
+function custom_jwt_login(WP_REST_Request $request)
+{
     $username = sanitize_text_field($request->get_param('username'));
     $password = $request->get_param('password'); // Don't sanitize the password
 
@@ -339,3 +340,167 @@ function custom_jwt_login(WP_REST_Request $request) {
         'user_display_name' => $user->display_name,
     ], 200);
 }
+
+
+
+function login_controller($request)
+{
+    $parameters = $request->get_params();
+
+    $username = isset($parameters['email']) ? sanitize_email($parameters['email']) : '';
+    $password = isset($parameters['password']) ? $parameters['password'] : '';
+
+    if (empty($username) || empty($password)) {
+        return sendResponse(["error" => true, "message" => $GLOBALS['validation_message']]);
+    }
+
+
+    // Perform user authentication
+    $user = wp_authenticate($username, $password);
+
+    if (is_wp_error($user)) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+    }
+
+    $token_request = wp_remote_post(home_url('/wp-json/jwt-auth/v1/token'), array(
+        'body' => array(
+            'username' => $username,
+            'password' => $password,
+        ),
+    ));
+
+
+    if (is_wp_error($token_request)) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+    }
+
+    $response_code = wp_remote_retrieve_response_code($token_request);
+
+
+
+    if ($response_code !== 200) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+    }
+
+    $response_body = wp_remote_retrieve_body($token_request);
+    $token_data = json_decode($response_body);
+
+
+    if (!isset($token_data->token)) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+    }
+
+    $response = [
+        'token' => $token_data->token,
+    ];
+
+    return sendResponse(["error" => false, "message" => $GLOBALS['success_message'], "data" => $response]);
+}
+
+function register_user_controller($request)
+{
+    $params = $request->get_params();
+
+    // Validate empty user data
+    if (
+        empty($params['email'])
+        || empty($params['password'])
+        || empty($params['last_name'])
+        || empty($params['first_name'])
+        || empty($params['agree_to_our_terms_and_condition'])
+        || empty($params["subscribe_to_our_newsletter"])
+        || !is_email($params['email'])
+    ) {
+        return sendResponse(["error" => true, "message" => $GLOBALS['validation_message'],]);
+    }
+
+    // Retrieve user data from the request
+    $user_data = [
+        'user_login' => sanitize_user($params['email']),
+        "user_email" => sanitize_email($params['email']),
+        'user_pass' => $params['password'],
+        "first_name" => sanitize_text_field($params['first_name']),
+        "last_name" => sanitize_text_field($params['last_name']),
+        'subscribe_to_our_newsletter' => filter_var($params['subscribe_to_our_newsletter'], FILTER_VALIDATE_BOOLEAN),
+        "agree_to_our_terms_and_condition" => filter_var($params['agree_to_our_terms_and_condition'], FILTER_VALIDATE_BOOLEAN)
+    ];
+
+
+    // Register the new user
+    $user_id = wp_insert_user($user_data);
+    if (is_wp_error($user_id)) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message'], "data" => [$user_id->get_error_message()]]);
+    }
+
+    // generate token and send email verification message
+    $token = generate_verification_token();
+
+    // Need fix -> implement the email feature
+    $email_payload = ["email" => $user_data["user_email"], "first_name" => $user_data["first_name"]];
+    $send_email = send_verification_email($email_payload, $token);
+    if (!$send_email) {
+        return sendResponse(["error" => true, "messsage" => $GLOBALS['failed_message']]);
+    }
+
+    //save the verification token and is verified
+    update_user_meta($user_id, 'verification_token', $token);
+    update_user_meta($user_id, 'is_verified', false);
+
+    $get_user = get_user_by('email', $user_data["user_email"]);
+    return sendResponse(["error" => false, "message" => $GLOBALS['success_message'], "data" => $get_user->data]);
+}
+
+/*
+|--------------------------------------------------------------------------
+| resend verification token  controller
+|--------------------------------------------------------------------------
+*/
+function resend_verification_token($request){
+    
+    // fetch token from request
+    $params = $request->get_params();
+    
+    
+    $email = isset($params['email']) ? sanitize_email($params['email']) : '';
+
+    if (empty($email) || !is_email($email)) {
+        return sendResponse(["error" => true, "message" => $GLOBALS['validation_message']]);
+    }
+  
+    $user = get_user_by('email', $email);
+    $token = generate_verification_token();
+    
+    // Need fix -> implement the email feature
+    $email_payload = ["email" => $email, "first_name" => $user["display_name"]];
+    $send_email = send_verification_email($email, $token);
+    if(!$send_email){
+	 return sendResponse(["error" => true,"messsage"=>$GLOBALS['failed_message']]);
+     }
+    
+    $meta_update = update_user_meta($user->ID, 'verification_token', $token);
+     if(!$meta_update){
+	 return sendResponse(["error" => true,"messsage"=>$GLOBALS['failed_message']]);
+     }
+     
+    return sendResponse(["error" => false, "message" =>$GLOBALS['success_message']]);   
+}
+
+
+function deny_direct_access_to_file(): void
+{
+    if (!defined('ABSPATH')) {
+        exit; // Exit if accessed directly.
+    }
+    
+    $file_path = $_SERVER['SCRIPT_FILENAME'];
+    $file_name = basename($file_path);
+    $allowed_extensions = ['php', 'html', 'htm', 'js', 'css'];
+    $extension = pathinfo($file_name, PATHINFO_EXTENSION);
+    if (!in_array($extension, $allowed_extensions)) {
+        header("HTTP/1.0 403 Forbidden");
+        echo "You are not allowed to access this file.";
+        exit;
+    }
+ 
+}
+

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap Dropdown Navbar</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    .dropdown-menu {
+        padding: 10px;
+        background-color: #f8f9fa;
+        /* Change to your preferred color */
+    }
+
+    .dropdown-item a {
+        padding: 10px 20px;
+        color: #333;
+    }
+
+    .dropdown-item a:hover {
+        background-color: #ddd;
+    }
+</style>
+
+<body>
+
+    <!-- Notifications Dropdown Menu -->
+    <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+            <span class="badge badge-warning navbar-badge" style="font-weight: bold">
+                Online <br />Tradingsss <br> 
+            </span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right animate__animated animate__fadeIn">
+        
+            <li class="nav-item <?=active('/users/trading-crypto-live', ' menu-open')?>" style="padding-left: -5px">
+                <a href="/users/trading-crypto-live"
+                    class="nav-link text-center<?=active('/users/trading-crypto-live', ' active')?>">
+                    <i class="nav-icon fas fa-coins"></i>
+                    <br />
+                    <p>Crypto<br /> Live <br />Trading</p>
+                </a>
+            </li>
+            <li class="nav-item <?=active('/users/trading-forex-live', ' menu-open')?>" style="padding-left: -5px">
+                <a href="/users/trading-forex-live"
+                    class="nav-link text-center<?=active('/users/trading-forex-live', ' active')?>">
+                    <i class="nav-icon fas fa-chart-area"></i>
+                    <br />
+                    <p>Forex<br /> Live <br />Trading</p>
+                </a>
+            </li>
+            <li class="nav-item <?=active('/users/trading-stocks-live', ' menu-open')?>" style="padding-left: -5px">
+                <a href="/users/trading-stocks-live"
+                    class="nav-link text-center<?=active('/users/trading-stocks-live', ' active')?>">
+                    <i class="nav-icon fas fa-chart-line"></i>
+                    <br />
+                    <p>Stocks<br /> Live <br />Trading</p>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="https://adminlte.io/themes/v3/dist/js/adminlte.min.js"></script>
+
+
+    <!-- <li class="nav-item <?=active('/users/trading-crypto-live', ' menu-open')?>" style="padding-left: -5px">
+        <a href="/users/trading-crypto-live"
+            class="nav-link text-center<?=active('/users/trading-crypto-live', ' active')?>">
+            <i class="nav-icon fas fa-coins"></i>
+            <br />
+            <p>Crypto<br /> Live <br />Trading</p>
+        </a>
+    </li>
+    <li class="nav-item <?=active('/users/trading-forex-live', ' menu-open')?>" style="padding-left: -5px">
+        <a href="/users/trading-forex-live" class="nav-link text-center<?=active('/users/trading-forex-live', ' active')?>">
+            <i class="nav-icon fas fa-chart-area"></i>
+            <br />
+            <p>Forex<br /> Live <br />Trading</p>
+        </a>
+    </li>
+    <li class="nav-item <?=active('/users/trading-stocks-live', ' menu-open')?>" style="padding-left: -5px">
+        <a href="/users/trading-stocks-live"
+            class="nav-link text-center<?=active('/users/trading-stocks-live', ' active')?>">
+            <i class="nav-icon fas fa-chart-line"></i>
+            <br />
+            <p>Stocks<br /> Live <br />Trading</p>
+        </a>
+    </li> -->
+</body>
+
+</html>
